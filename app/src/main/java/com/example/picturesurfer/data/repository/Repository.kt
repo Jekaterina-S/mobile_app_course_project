@@ -10,6 +10,8 @@ class DogRepository {
 
     /**
      * Fetches random dog images from the API
+     * @param limit Number of images to fetch
+     * @return Result containing list of dog images or error
      */
     suspend fun getRandomDogs(limit: Int = 10): Result<List<DogImage>> {
         return withContext(Dispatchers.IO) {

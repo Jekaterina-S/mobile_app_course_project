@@ -7,7 +7,6 @@ import retrofit2.http.Query
 interface DogApiService {
     @GET("v1/images/search")
     suspend fun getRandomDogs(
-        @Query("limit") limit: Int = 10,
-        @Query("has_breeds") hasBreeds: Int = 1
+        @Query("limit") limit: Int = 10
     ): List<DogImage>
 }

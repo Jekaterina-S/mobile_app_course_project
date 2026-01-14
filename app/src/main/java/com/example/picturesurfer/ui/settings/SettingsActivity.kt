@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
 import com.example.picturesurfer.databinding.ActivitySettingsBinding
-import com.example.picturesurfer.data.prefs.PreferencesManager
+import com.example.picturesurfer.data.preferences.PreferencesManager
 import kotlinx.coroutines.launch
 
 class SettingsActivity : AppCompatActivity() {
@@ -80,8 +80,8 @@ class SettingsActivity : AppCompatActivity() {
 
         // Observe favorites count
         lifecycleScope.launch {
-            preferencesManager.favoritesFlow.collect { favorites ->
-                binding.favoritesCount.text = "Favorite Dogs: ${favorites.size}"
+            preferencesManager.favoriteDogsFlow.collect { favoriteDogs ->
+                binding.favoritesCount.text = "Favorite Dogs: ${favoriteDogs.size}"
             }
         }
     }

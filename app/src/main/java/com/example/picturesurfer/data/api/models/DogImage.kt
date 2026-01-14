@@ -20,9 +20,9 @@ data class DogImage(
 )
 
 data class Breed(
-    @SerializedName("name")
-    val name: String,
+    @SerializedName("id")
+    val id: Int? = null,
 
-    @SerializedName("temperament")
-    val temperament: String? = null
+    @SerializedName("name")
+    val name: String
 )

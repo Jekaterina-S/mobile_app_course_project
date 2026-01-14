@@ -1,8 +1,5 @@
 package com.example.picturesurfer.data.repository
 
-/**
- * A generic wrapper class for handling different states of data
- */
 sealed class Resource<T>(
     val data: T? = null,
     val message: String? = null

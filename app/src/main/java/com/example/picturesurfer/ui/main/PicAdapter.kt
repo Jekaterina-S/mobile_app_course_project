@@ -10,9 +10,10 @@ import com.example.picturesurfer.R
 import com.example.picturesurfer.data.api.models.DogImage
 import com.example.picturesurfer.databinding.ItemPictureBinding
 
-class PicAdapter(
-    private val onFavoriteClick: (DogImage) -> Unit
-) : ListAdapter<DogImage, PicAdapter.DogViewHolder>(DogDiffCallback()) {
+class DogAdapter(
+    private val onFavoriteClick: (DogImage) -> Unit,
+    private val onImageClick: (DogImage) -> Unit
+) : ListAdapter<DogImage, DogAdapter.DogViewHolder>(DogDiffCallback()) {
 
     private val favorites = mutableSetOf<String>()
     private var textSize = 14f
@@ -54,7 +55,7 @@ class PicAdapter(
             }
 
             // Set breed name
-            val breedName = dog.breeds?.firstOrNull()?.name ?: "Unknown Breed"
+            val breedName = dog.breeds?.firstOrNull()?.name ?: "Dog"
             binding.breedName.text = breedName
             binding.breedName.textSize = textSize
 
@@ -68,6 +69,15 @@ class PicAdapter(
             // Handle favorite click
             binding.favoriteButton.setOnClickListener {
                 onFavoriteClick(dog)
+            }
+
+            // Handle image click
+            binding.dogImage.setOnClickListener {
+                onImageClick(dog)
+            }
+
+            binding.root.setOnClickListener {
+                onImageClick(dog)
             }
         }
     }

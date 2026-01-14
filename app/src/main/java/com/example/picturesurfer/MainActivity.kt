@@ -12,9 +12,10 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.picturesurfer.databinding.ActivityMainBinding
-import com.example.picturesurfer.data.prefs.PreferencesManager
+import com.example.picturesurfer.data.api.models.DogImage
+import com.example.picturesurfer.data.preferences.PreferencesManager
 import com.example.picturesurfer.data.repository.Resource
-import com.example.picturesurfer.ui.main.PicAdapter
+import com.example.picturesurfer.ui.main.DogAdapter
 import com.example.picturesurfer.ui.main.MainViewModel
 import com.example.picturesurfer.ui.settings.SettingsActivity
 import kotlinx.coroutines.launch
@@ -23,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
-    private lateinit var adapter: PicAdapter
+    private lateinit var adapter: DogAdapter
     private lateinit var preferencesManager: PreferencesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,7 +32,6 @@ class MainActivity : AppCompatActivity() {
 
         preferencesManager = PreferencesManager(this)
 
-        // Apply saved theme before setContentView
         lifecycleScope.launch {
             preferencesManager.themeFlow.collect { theme ->
                 applyTheme(theme)
@@ -60,16 +60,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        adapter = PicAdapter { dog ->
-            lifecycleScope.launch {
-                preferencesManager.toggleFavorite(dog.id)
+        adapter = DogAdapter(
+            onFavoriteClick = { dog ->
+                lifecycleScope.launch {
+                    preferencesManager.toggleFavorite(dog)
+                }
+            },
+            onImageClick = { dog ->
+                openImageDetail(dog)
             }
-        }
+        )
 
         binding.recyclerView.apply {
             layoutManager = GridLayoutManager(this@MainActivity, 2)
             adapter = this@MainActivity.adapter
         }
+    }
+
+    private fun openImageDetail(dog: DogImage) {
+        val breedName = dog.breeds?.firstOrNull()?.name ?: "Dog"
+        val intent = Intent(this, com.example.picturesurfer.ui.detail.ImageDetailActivity::class.java).apply {
+            putExtra(com.example.picturesurfer.ui.detail.ImageDetailActivity.EXTRA_IMAGE_URL, dog.url)
+            putExtra(com.example.picturesurfer.ui.detail.ImageDetailActivity.EXTRA_BREED_NAME, breedName)
+            putExtra(com.example.picturesurfer.ui.detail.ImageDetailActivity.EXTRA_DOG_ID, dog.id)
+        }
+        startActivity(intent)
     }
 
     private fun setupObservers() {
@@ -86,6 +101,8 @@ class MainActivity : AppCompatActivity() {
                     binding.recyclerView.visibility = View.VISIBLE
                     resource.data?.let { dogs ->
                         adapter.submitList(dogs)
+                        // Share dogs with FavoritesActivity
+                        com.example.picturesurfer.ui.favorites.FavoritesActivity.allDogs = dogs
                     }
                 }
                 is Resource.Error -> {
@@ -126,6 +143,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.action_favorites -> {
+                startActivity(Intent(this, com.example.picturesurfer.ui.favorites.FavoritesActivity::class.java))
+                true
+            }
             R.id.action_settings -> {
                 startActivity(Intent(this, SettingsActivity::class.java))
                 true
